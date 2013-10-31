@@ -31,6 +31,10 @@ def get_id(account):
     _id = keyring.get_password('mutt',account+'-id')
     return _id
 
+def print_mutt(account):
+    _id = keyring.get_password('mutt',account+'-id')
+    return 'msmtp -a {0} -f {1} --user {2}'.format(account,_id,_id)
+
 def main():
     parser = argparse.ArgumentParser(description='Store and get addresses information\
                                      into a keyring')
@@ -44,6 +48,12 @@ def main():
                         default="",\
                         help='Get account id for given account (ex. email\
                         address)')
+    group_get.add_argument('-m', '--mutt-string',\
+                        metavar='ACCOUNT', type=str,\
+                        default="",\
+                           help='Get a mutt compatible string like:\
+                           msmtp -a ACCOUNT -f FROM --user USERID'\
+                         )
     parser.add_argument('-s','--set-account',\
                         metavar='ACCOUNT', type=str,\
                         default="",\
@@ -73,6 +83,8 @@ def main():
         print(get_pw(args.get_password))
     elif args.get_id != '':
         print(get_id(args.get_id))
+    elif args.mutt_string != '':
+        print('"{0}"'.format(print_mutt(args.mutt_string)))
 
 if __name__ == '__main__':
     main()
