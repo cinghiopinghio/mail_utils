@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 from __future__ import print_function
 import sys
@@ -56,28 +56,37 @@ def exclude(excludes):
 # Password and From and Username retrieval
 #===========================================================
 
-def set_all(rcfile):
-    with open(expanduser(rcfile),'r') as fin:
-        for line in fin:
-            line = line.split()
-            if len(line)>0 and line[0] == 'account':
-                if line[1] != 'default':
-                    set_account(line[1])
+SER='mutt'
 
-def set_account(account):
-    print ('Storing information about {0} account on a keyring'.format(account))
-    _id = input('Id: ')
-    _pw = getpass.getpass()
+class Pw():
+    def __init__(self,_from='',_user='',_password=''):
+        self.frm = _from
+        self.usr = _user
+        self.pwd = _password
+    def __str__(self):
+        return '{0},{1},{2}'.format(self.frm,self.usr,self.pwd)
+    def get_from(self,account):
+        data = keyring.get_password(SER,account)
+        self.frm, self.usr, self.pwd = data.split(',')
+    def set_to(self,account):
+        keyring.set_password(SER,account,str(self))
 
-    keyring.set_password('mutt',account+'-pw',_pw)
-    keyring.set_password('mutt',account+'-id',_id)
-    print ('Password and Id stored')
 
-def get_pw(account):
-    _pw = keyring.get_password('mutt',account+'-pw')
-    return _pw
 
-def get_id(account):
-    _id = keyring.get_password('mutt',account+'-id')
-    return _id
+def get_account(account):
+    secret = Pw()
+    secret.get_from(account)
+    return secret
+
+def get_password(account):
+    secret = get_account(account)
+    return secret.pwd
+
+def get_user(account):
+    secret = get_account(account)
+    return secret.usr
+
+def get_from(account):
+    secret = get_account(account)
+    return secret.frm
 

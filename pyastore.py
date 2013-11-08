@@ -1,65 +1,76 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 from __future__ import print_function,division
 from utils import *
 import argparse
 from os.path import expanduser
 
+def set_account(account):
+    print ('\nStoring information about {0} account on a keyring'.format(account))
+    usr = input('User:                         ')
+    frm = input('From (default: same as User): ')
+    frm = frm if frm != '' else usr
+    pwd = getpass.getpass(prompt='Password:                     ')
+
+
+    secret = Pw(_from=frm, _user=usr, _password=pwd)
+    secret.set_to(account)
+    print ('Password and Username and From stored')
 
 def print_mutt(account):
-    _id = keyring.get_password('mutt',account+'-id')
-    return 'msmtp -a {0} -f {1} --user {2}'.format(account,_id,_id)
+    secret = get_account(account)
+    return 'msmtp -a {0} -f {1} --user {2}'.format(account,\
+                                                   secret.frm,\
+                                                   secret.usr)
 
 def main():
     parser = argparse.ArgumentParser(description='Store and get addresses information\
                                      into a keyring')
     group_get = parser.add_mutually_exclusive_group()
     group_get.add_argument('-p', '--get-password',\
-                        metavar='ACCOUNT', type=str,\
-                        default="",\
+                           action='store_true',\
                         help='Get password for given account')
-    group_get.add_argument('-i', '--get-id',\
-                        metavar='ACCOUNT', type=str,\
-                        default="",\
+    group_get.add_argument('-u', '--get-user',\
+                           action='store_true',\
+                        help='Get account id for given account (ex. email\
+                        address)')
+    group_get.add_argument('-f', '--get-from',\
+                           action='store_true',\
                         help='Get account id for given account (ex. email\
                         address)')
     group_get.add_argument('-m', '--mutt-string',\
-                        metavar='ACCOUNT', type=str,\
-                        default="",\
+                           action='store_true',\
                            help='Get a mutt compatible string like:\
                            msmtp -a ACCOUNT -f FROM --user USERID'\
                          )
     parser.add_argument('-s','--set-account',\
-                        metavar='ACCOUNT', type=str,\
-                        default="",\
-                        help='Set password and id for given account')
-    parser.add_argument('-S','--set-all',\
                         action='store_true',\
-                        help='set password and ids for accounts in msmtp\
-                        rc-file')
-    parser.add_argument('-f','--rc-file',\
+                        help='Set password and id for given account')
+    parser.add_argument('-F','--rc-file',\
                         metavar='MSMTPRC', type=str,\
                         default='~/.msmtprc',\
                         help='set msmtp rc-file (default: ~/.msmtprc)')
+    parser.add_argument("account",\
+                        metavar='ACCOUNT', type=str,\
+                        default='default',\
+                        help="account in the keyring (default = 'default')")
     
 
     args = parser.parse_args()
 
-    if args.set_all:
-        # set all accounts in msmtprc
-        set_all(args.rc_file)
-    else:
-        # set account information
-        if args.set_account != '':
-            set_account(args.set_account)
+    # set account information
+    if args.set_account:
+        set_account(args.account)
 
     # get account information
-    if args.get_password != '':
-        print(get_pw(args.get_password))
-    elif args.get_id != '':
-        print(get_id(args.get_id))
-    elif args.mutt_string != '':
-        print('"{0}"'.format(print_mutt(args.mutt_string)))
+    if args.get_password:
+        print(get_password(args.account))
+    elif args.get_user:
+        print(get_user(args.account))
+    elif args.get_from:
+        print(get_from(args.account))
+    elif args.mutt_string:
+        print('"{0}"'.format(print_mutt(args.account)))
 
 if __name__ == '__main__':
     main()
