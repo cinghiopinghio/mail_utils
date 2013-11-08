@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 
 from __future__ import print_function,division
 from utils import *
@@ -7,11 +7,16 @@ from os.path import expanduser
 
 def set_account(account):
     print ('\nStoring information about {0} account on a keyring'.format(account))
-    usr = input('User:                         ')
-    frm = input('From (default: same as User): ')
+    usr = raw_input('User:                         ')
+    frm = raw_input('From (default: same as User): ')
     frm = frm if frm != '' else usr
-    pwd = getpass.getpass(prompt='Password:                     ')
-
+    while True:
+        pwd = getpass.getpass(prompt='Password:                     ')
+        pwd1 = getpass.getpass(prompt='Retype it:                    ')
+        if pwd == pwd1:
+            break
+        else:
+            print ('\nPassword are different. Retry.\n')
 
     secret = Pw(_from=frm, _user=usr, _password=pwd)
     secret.set_to(account)
