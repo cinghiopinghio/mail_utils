@@ -1,5 +1,5 @@
 
 
 install:
-	ln -sf ~/codes/pyastore/pyastore.py ~/.local/bin/pyastore
+	ln -sf ${PWD}/pyastore.py ~/.local/bin/pyastore
 
