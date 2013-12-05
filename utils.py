@@ -24,6 +24,7 @@ mapping = { 'INBOX':              'INBOX'
           , '[Gmail]/Spam':       'spam'
           , '[Gmail]/Starred':    'flagged'
           , '[Gmail]/Trash':      'trash'
+          , '[Gmail]/Chats':      'chats'
           }
 
 r_mapping = { val: key for key, val in mapping.items() }
