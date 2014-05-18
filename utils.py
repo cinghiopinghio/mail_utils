@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 import sys
+import subprocess
 import keyring
 import getpass
 
@@ -69,10 +70,37 @@ class Pw():
     def get_from(self,account):
         data = keyring.get_password(SER,account)
         self.frm, self.usr, self.pwd = data.split(',')
+    def get_from_pass(self,account):
+        data = subprocess.check_output(['pass','email/'+str(account)])
+        for line in data.split('\n'):
+            secret = line.split(':')
+            if len(secret) == 1 and secret[0] != '':
+                self.pwd = secret[0]
+            elif secret[0] == 'user':
+                scrt = secret[1].split(',')
+                if len(scrt) == 1:
+                    self.frm = self.usr = scrt[0]
+                elif len(scrt) == 2:
+                    self.frm,self.usr = scrt
     def set_to(self,account):
         keyring.set_password(SER,account,str(self))
 
+def get_account_pass(account):
+    secret = Pw()
+    secret.get_from_pass(account)
+    return secret
 
+def get_password_pass(account):
+    secret = get_account_pass(account)
+    return secret.pwd
+
+def get_user_pass(account):
+    secret = get_account_pass(account)
+    return secret.usr
+
+def get_from_pass(account):
+    secret = get_account_pass(account)
+    return secret.frm
 
 def get_account(account):
     secret = Pw()

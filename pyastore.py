@@ -69,11 +69,11 @@ def main():
 
     # get account information
     if args.get_password:
-        print(get_password(args.account))
+        print(get_password_pass(args.account))
     elif args.get_user:
-        print(get_user(args.account))
+        print(get_user_pass(args.account))
     elif args.get_from:
-        print(get_from(args.account))
+        print(get_from_pass(args.account))
     elif args.mutt_string:
         print('"{0}"'.format(print_mutt(args.account)))
 
